@@ -14,7 +14,7 @@ import board
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
 
-BANYAN_IP="192.168.178.49"
+BANYAN_IP="192.168.178.59"
 
 class test(BanyanBase):
     """
@@ -29,7 +29,17 @@ class test(BanyanBase):
         :param subscriber_port: subscriber port number - matches that of backplane
         :param publisher_port: publisher port number - matches that of backplane
         """
+        # create the spi bus
+        spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 
+        # create the cs (chip select)
+        cs = digitalio.DigitalInOut(board.D5)
+
+        # create the mcp object
+        mcp = MCP.MCP3008(spi, cs)
+        
+        noteOn=0
+        
         # initialize the base class
         super().__init__(back_plane_ip_address,  process_name=process_name, numpy=True)
 
@@ -37,40 +47,34 @@ class test(BanyanBase):
 
         # Loop sending messages to unitygateway to request a cube color change
         while True:
-            # create the spi bus
-            spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
+            
 
-            # create the cs (chip select)
-            cs = digitalio.DigitalInOut(board.D5)
-
-            # create the mcp object
-            mcp = MCP.MCP3008(spi, cs)
-
-            # Define channels
-            button = AnalogIn(mcp, MCP.P0)
-            xAxis = AnalogIn(mcp, MCP.P1)
-            yAxis = AnalogIn(mcp, MCP.P2)
-            value = [button.value, xAxis.value, yAxis.value]
+            # read values
+            #button = AnalogIn(mcp, MCP.P0)  #button is not needed
+            xAxis = AnalogIn(mcp, MCP.P1).value/64 #creates values from 0- ~1000 
+            yAxis = AnalogIn(mcp, MCP.P2).value/64 #creates values from 0- ~1000 
 
 
             try:
+                if(xAxis>600 or xAxis<400 or yAxis>600 or yAxis<400):  #if joystick is moved
+                    # Define the Unity message to be sent
+                    unity_message = {"action":"modulate", "info": xAxis, "value": yAxis, "target":"Cube"}
 
-                time.sleep(1)
+                    # Send the message
+                    self.send_unity_message(unity_message)
+                    print(unity_message)
+                    noteOn=1
+                elif(noteOn == 1):
+                    # Define the Unity message to be sent
+                    unity_message = {"action":"modulate", "info": 500, "value": 500, "target":"Cube"}
 
-                # Define the Unity message to be sent
-                unity_message = {"action":"color", "info":"blue", "value": value, "target":"Cube"}
+                    # Send the message
+                    self.send_unity_message(unity_message)
                 
-                # Send the message
-                self.send_unity_message(unity_message)
-
-                time.sleep(1)
-
-                # Define the Unity message to be sent
-                unity_message = {"action":"color", "info":"red", "value": value, "target":"Cube"}
-
-                # Send the message
-                self.send_unity_message(unity_message)
-                print(unity_message)
+                    print(unity_message)
+                    noteOn=0
+                
+                
             except KeyboardInterrupt:
                 self.clean_up()
 
@@ -133,4 +137,5 @@ def unity_test():
 
 if __name__ == "__main__":
     unity_test()
+
 
