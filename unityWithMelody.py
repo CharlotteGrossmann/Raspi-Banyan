@@ -27,6 +27,7 @@ class test(BanyanBase):
         :param publisher_port: publisher port number - matches that of backplane
         """
         lastNote =-1
+        note = 0
         # initialize the base class
         super().__init__(back_plane_ip_address,  process_name=process_name, numpy=True)
 
