@@ -11,7 +11,7 @@ from python_banyan.banyan_base import BanyanBase
 import RPi.GPIO as GPIO
 
 
-BANYAN_IP="192.168.178.52"
+BANYAN_IP="192.168.178.59"
 
 class test(BanyanBase):
     """
@@ -26,7 +26,7 @@ class test(BanyanBase):
         :param subscriber_port: subscriber port number - matches that of backplane
         :param publisher_port: publisher port number - matches that of backplane
         """
-
+        lastNote =-1
         # initialize the base class
         super().__init__(back_plane_ip_address,  process_name=process_name, numpy=True)
 
@@ -56,28 +56,30 @@ class test(BanyanBase):
            
             try:
                 if (GPIO.input(C1)==0):
-                    note=8
+                    note=54
                   
                 elif (GPIO.input(B)==0):
-                    note=7
-                    
+                    note=53
                 elif (GPIO.input(A)==0):
-                    note=6
-                elif (GPIO.input(A)==0):
-                    note=5
-                elif (GPIO.input(A)==0):
-                    note=4
-                elif (GPIO.input(A)==0):
-                    note=3
-                elif (GPIO.input(A)==0):
-                    note=2
-                elif (GPIO.input(A)==0):
-                    note=1
+                    note=51
+                elif (GPIO.input(G)==0):
+                    note=49
+                elif (GPIO.input(F)==0):
+                    note=47
+                elif (GPIO.input(E)==0):
+                    note=46
+                elif (GPIO.input(D)==0):
+                    note=44
+                elif (GPIO.input(C)==0):
+                    note=42
                 else:
                     note=-1
                     
-                unity_message = {"action":"color", "info":"blue", "value": note, "target":"Cube"}    
-                self.send_unity_message(unity_message)
+                if(note!= lastNote):
+                    unity_message = {"action":"melody", "info":"blue", "value": note, "target":"Cube"}    
+                    self.send_unity_message(unity_message)
+                    print(unity_message)
+                    lastNote=note
 
                 
 
@@ -145,3 +147,4 @@ def unity_test():
 
 if __name__ == "__main__":
     unity_test()
+
