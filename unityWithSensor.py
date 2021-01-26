@@ -29,7 +29,15 @@ class test(BanyanBase):
         :param subscriber_port: subscriber port number - matches that of backplane
         :param publisher_port: publisher port number - matches that of backplane
         """
+        noteOn = 0
+        # create the spi bus
+        spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 
+        # create the cs (chip select)
+        cs = digitalio.DigitalInOut(board.D5)
+
+        # create the mcp object
+        mcp = MCP.MCP3008(spi, cs)
         # initialize the base class
         super().__init__(back_plane_ip_address,  process_name=process_name, numpy=True)
 
@@ -37,36 +45,31 @@ class test(BanyanBase):
 
         # Loop sending messages to unitygateway to request a cube color change
         while True:
-            # create the spi bus
-            spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
-
-            # create the cs (chip select)
-            cs = digitalio.DigitalInOut(board.D5)
-
-            # create the mcp object
-            mcp = MCP.MCP3008(spi, cs)
+           
 
             # create an analog input channel on pin 0
             chan = AnalogIn(mcp, MCP.P7)
-
-
+            
+            force=chan.value/72
             try:
+                
+                if(force>5 and noteOn==0):
+                    # Define the Unity message to be sent
+                    unity_message = {"action":"rhythm", "info":"red", "value": force, "target":"Cube"}
 
-                time.sleep(1)
+                    # Send the message
+                    self.send_unity_message(unity_message)
+                    
+                    noteOn=1
+                    
+                elif(force<5 and noteOn==1):
+                    # Define the Unity message to be sent
+                    unity_message = {"action":"rhythm", "info":"red", "value": 0, "target":"Cube"}
 
-                # Define the Unity message to be sent
-                unity_message = {"action":"color", "info":"blue", "value": chan.value, "target":"Cube"}
-
-                # Send the message
-                self.send_unity_message(unity_message)
-
-                time.sleep(1)
-
-                # Define the Unity message to be sent
-                unity_message = {"action":"color", "info":"red", "value": chan.value, "target":"Cube"}
-
-                # Send the message
-                self.send_unity_message(unity_message)
+                    # Send the message
+                    self.send_unity_message(unity_message)
+                    
+                    noteOn=0
 
             except KeyboardInterrupt:
                 self.clean_up()
@@ -84,7 +87,7 @@ class test(BanyanBase):
 
         # Send off the message!
         self.publish_payload(unity_message, topic)
-
+        print(unity_message, topic)
     def clean_up(self):
         """
         Clean up before exiting - override if additional cleanup is necessary
@@ -131,3 +134,4 @@ def unity_test():
 
 if __name__ == "__main__":
     unity_test()
+
