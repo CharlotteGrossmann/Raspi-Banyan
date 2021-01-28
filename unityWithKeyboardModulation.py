@@ -58,7 +58,7 @@ class test(BanyanBase):
             try:
                 if(xAxis>600 or xAxis<400 or yAxis>600 or yAxis<400):  #if joystick is moved
                     # Define the Unity message to be sent
-                    unity_message = {"action":"modulate", "info": xAxis, "value": yAxis, "target":"Cube"}
+                    unity_message = {"action":"KeyboardModulate", "info": xAxis, "value": yAxis, "target":"Cube"}
 
                     # Send the message
                     self.send_unity_message(unity_message)
@@ -66,7 +66,7 @@ class test(BanyanBase):
                     noteOn=1
                 elif(noteOn == 1):
                     # Define the Unity message to be sent
-                    unity_message = {"action":"modulate", "info": 500, "value": 500, "target":"Cube"}
+                    unity_message = {"action":"KeyboardModulate", "info": 500, "value": 500, "target":"Cube"}
 
                     # Send the message
                     self.send_unity_message(unity_message)
