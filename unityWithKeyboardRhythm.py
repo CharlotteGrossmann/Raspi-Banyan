@@ -55,7 +55,7 @@ class test(BanyanBase):
                 
                 if(force>5 and noteOn==0):
                     # Define the Unity message to be sent
-                    unity_message = {"action":"rhythm", "info":"red", "value": force, "target":"Cube"}
+                    unity_message = {"action":"KeyboardRhythm", "info":"red", "value": force, "target":"Cube"}
 
                     # Send the message
                     self.send_unity_message(unity_message)
@@ -64,7 +64,7 @@ class test(BanyanBase):
                     
                 elif(force<5 and noteOn==1):
                     # Define the Unity message to be sent
-                    unity_message = {"action":"rhythm", "info":"red", "value": 0, "target":"Cube"}
+                    unity_message = {"action":"KeyboardRhythm", "info":"red", "value": 0, "target":"Cube"}
 
                     # Send the message
                     self.send_unity_message(unity_message)
