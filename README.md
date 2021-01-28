@@ -1,12 +1,12 @@
 # Raspi-Banyan
 
-Have Raspberry Pis read analog or digital input and send it to Unity via Banyan<br><br>
+Have Raspberry Pis read analog or digital input and send it to Unity via Banyan<br><br><br><br>
 
 Dependencies:<br><br>
 
 Python Banyan <br>
 https://github.com/MrYsLab/python_banyan<br>
-sudo pip3 install python-banyan<br><br><br>
+sudo pip3 install python-banyan<br><br>
 
 
 Adafruit CircuitPython BusDevice Library<br>
