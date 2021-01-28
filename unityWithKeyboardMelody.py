@@ -77,7 +77,7 @@ class test(BanyanBase):
                     note=-1
                     
                 if(note!= lastNote):
-                    unity_message = {"action":"melody", "info":"blue", "value": note, "target":"Cube"}    
+                    unity_message = {"action":"KeyboardMelody", "info":"blue", "value": note, "target":"Cube"}    
                     self.send_unity_message(unity_message)
                     print(unity_message)
                     lastNote=note
