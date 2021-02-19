@@ -28,5 +28,5 @@ sudo pip3 install adafruit-circuitpython-mcp3xxx <br><br><br>
 5. Done<br><br><br>
 
 
-##Trouble shooting
+Trouble shooting<br>
 if the backplane doesn't receive any messages, make sure your firewall is down, or the necessary ports are open.
