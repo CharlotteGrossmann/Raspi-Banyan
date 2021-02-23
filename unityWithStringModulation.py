@@ -53,12 +53,12 @@ class test(BanyanBase):
             #button = AnalogIn(mcp, MCP.P0)  #button is not needed
             xAxis = AnalogIn(mcp, MCP.P1).value/64 #creates values from 0- ~1000 
             yAxis = AnalogIn(mcp, MCP.P2).value/64 #creates values from 0- ~1000 
-            name = "StringPitch"
+
 
             try:
                 if(xAxis>600 or xAxis<400 or yAxis>600 or yAxis<400):  #if joystick is moved
                     # Define the Unity message to be sent
-                    unity_message = {"action":name, "info": xAxis, "value": yAxis, "target":"Cube"}
+                    unity_message = {"action":"StringPitch", "info": xAxis, "value": yAxis, "target":"Cube"}
 
                     # Send the message
                     self.send_unity_message(unity_message)
@@ -66,7 +66,7 @@ class test(BanyanBase):
                     noteOn=1
                 elif(noteOn == 1):
                     # Define the Unity message to be sent
-                    unity_message = {"action":name, "info": 500, "value": 500, "target":"Cube"}
+                    unity_message = {"action":"StringPitch", "info": 500, "value": 500, "target":"Cube"}
 
                     # Send the message
                     self.send_unity_message(unity_message)

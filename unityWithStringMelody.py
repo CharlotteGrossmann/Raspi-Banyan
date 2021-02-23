@@ -8,13 +8,10 @@ import sys
 import time
 from python_banyan.banyan_base import BanyanBase
 
-import busio
-import digitalio
-import board
-import adafruit_mcp3xxx.mcp3008 as MCP
-from adafruit_mcp3xxx.analog_in import AnalogIn
+import RPi.GPIO as GPIO
 
-BANYAN_IP="192.168.178.52"
+
+BANYAN_IP="192.168.2.166"
 
 class test(BanyanBase):
     """
@@ -29,15 +26,8 @@ class test(BanyanBase):
         :param subscriber_port: subscriber port number - matches that of backplane
         :param publisher_port: publisher port number - matches that of backplane
         """
-        noteOn = 0
-        # create the spi bus
-        spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
-
-        # create the cs (chip select)
-        cs = digitalio.DigitalInOut(board.D5)
-
-        # create the mcp object
-        mcp = MCP.MCP3008(spi, cs)
+        lastNote = -1
+        note = -1
         # initialize the base class
         super().__init__(back_plane_ip_address,  process_name=process_name, numpy=True)
 
@@ -45,31 +35,55 @@ class test(BanyanBase):
 
         # Loop sending messages to unitygateway to request a cube color change
         while True:
-           
-
-            # create an analog input channel on pin 0
-            chan = AnalogIn(mcp, MCP.P7)
+            C1 = 12
+            B = 16
+            A = 18
+            G = 22
+            F = 32
+            E = 36
+            D = 38
+            C = 40
+            GPIO.setmode(GPIO.BOARD)
             
-            force=chan.value/72
+            GPIO.setup(C1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(B,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(A,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(G,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(F,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(E,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(D,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(C,GPIO.IN,pull_up_down=GPIO.PUD_UP)
+            
+           
             try:
+                if (GPIO.input(C1)==0):
+                    note=54
+                  
+                elif (GPIO.input(B)==0):
+                    note=53
+                elif (GPIO.input(A)==0):
+                    note=51
+                elif (GPIO.input(G)==0):
+                    note=49
+                elif (GPIO.input(F)==0):
+                    note=47
+                elif (GPIO.input(E)==0):
+                    note=46
+                elif (GPIO.input(D)==0):
+                    note=44
+                elif (GPIO.input(C)==0):
+                    note=42
+                else:
+                    note=-1
+                    
+                if(note!= lastNote):
+                    unity_message = {"action":"StringMelody", "info":"blue", "value": note, "target":"Cube"}    
+                    self.send_unity_message(unity_message)
+                    print(unity_message)
+                    lastNote=note
+
                 
-                if(force>5 and noteOn==0):
-                    # Define the Unity message to be sent
-                    unity_message = {"action":"FluteRhythm", "info":"red", "value": force, "target":"Cube"}
 
-                    # Send the message
-                    self.send_unity_message(unity_message)
-                    
-                    noteOn=1
-                    
-                elif(force<5 and noteOn==1):
-                    # Define the Unity message to be sent
-                    unity_message = {"action":"FluteRhythm", "info":"red", "value": 0, "target":"Cube"}
-
-                    # Send the message
-                    self.send_unity_message(unity_message)
-                    
-                    noteOn=0
 
             except KeyboardInterrupt:
                 self.clean_up()
@@ -87,7 +101,7 @@ class test(BanyanBase):
 
         # Send off the message!
         self.publish_payload(unity_message, topic)
-        print(unity_message, topic)
+
     def clean_up(self):
         """
         Clean up before exiting - override if additional cleanup is necessary
