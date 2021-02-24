@@ -47,10 +47,11 @@ class test(BanyanBase):
             chan = AnalogIn(mcp, MCP.P7)
             
             #scale down the sensor value to roughly 0-127
-            force=chan.value/72
+            force=chan.value/40
+            
             try:
                 
-                if(force>5 and noteOn==0): #force>5 because the sensor values aren't stable
+                if(force>8 and noteOn==0): #force>8 because the sensor values aren't stable
                     # Define the Unity message to be sent
                     unity_message = {"action":"StringRhythm", "info":"red", "value": force, "target":"Cube"}
 
@@ -59,7 +60,7 @@ class test(BanyanBase):
                     
                     noteOn=1
                     
-                elif(force<5 and noteOn==1):
+                elif(force<8 and noteOn==1):
                     # Define the Unity message to be sent
                     unity_message = {"action":"StringRhythm", "info":"red", "value": 0, "target":"Cube"}
 
@@ -80,18 +81,17 @@ class test(BanyanBase):
 
         # Send off the message!
         self.publish_payload(unity_message, topic)
-        print(unity_message, topic)
 
     def clean_up(self):
        
         #Clean up before exiting 
-        
         self.publisher.close()
         self.subscriber.close()
         self.context.term()
         sys.exit(0)
 
 def unity_test():
+   
     #get additional arguments from the console
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", dest="back_plane_ip_address", default="None",
