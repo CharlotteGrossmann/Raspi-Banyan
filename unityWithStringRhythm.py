@@ -14,22 +14,18 @@ import board
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
 
-BANYAN_IP="192.168.178.52"
+BANYAN_IP="192.168.2.103" #change this to your backplane IP or type " -b >>your backplane IP<<" when you run the script
+
+#this script is based on the "test_unity_sender_cube.py" that is available here: https://github.com/NoahMoscovici/banyanunity
 
 class test(BanyanBase):
-    """
-    This class subscribes to all messages on the back plane and prints out both topic and payload.
-    """
-
-    def __init__(self, back_plane_ip_address=BANYAN_IP,
+   
+    #connect to the backplane
+    def __init__(self, back_plane_ip_address=BANYAN_IP, 
                  process_name=None, com_port="None", baud_rate=115200, log=False, quiet=False, loop_time="0.1"):
-        """
-        This is constructor for the Monitor class
-        :param back_plane_ip_address: IP address of the currently running backplane
-        :param subscriber_port: subscriber port number - matches that of backplane
-        :param publisher_port: publisher port number - matches that of backplane
-        """
+        
         noteOn = 0
+
         # create the spi bus
         spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 
@@ -38,15 +34,15 @@ class test(BanyanBase):
 
         # create the mcp object
         mcp = MCP.MCP3008(spi, cs)
+
         # initialize the base class
         super().__init__(back_plane_ip_address,  process_name=process_name, numpy=True)
 
-        """"""
+        
 
-        # Loop sending messages to unitygateway to request a cube color change
+        # Loop sending messages to unitygateway
         while True:
            
-
             # create an analog input channel on pin 0
             chan = AnalogIn(mcp, MCP.P7)
             
@@ -54,7 +50,7 @@ class test(BanyanBase):
             force=chan.value/72
             try:
                 
-                if(force>5 and noteOn==0):
+                if(force>5 and noteOn==0): #force>5 because the sensor values aren't stable
                     # Define the Unity message to be sent
                     unity_message = {"action":"StringRhythm", "info":"red", "value": force, "target":"Cube"}
 
@@ -75,32 +71,28 @@ class test(BanyanBase):
             except KeyboardInterrupt:
                 self.clean_up()
 
-        """"""
+        
 
     def send_unity_message(self, unity_message):
-        """
-        Logs the game activity. self.room_name must be set before calling this function
-
-        :return:
-        """
+        
         # Set the topic so the unitygateway picks up the message.
         topic = "send_to_unity"
 
         # Send off the message!
         self.publish_payload(unity_message, topic)
         print(unity_message, topic)
-    def clean_up(self):
-        """
-        Clean up before exiting - override if additional cleanup is necessary
 
-        :return:
-        """
+    def clean_up(self):
+       
+        #Clean up before exiting 
+        
         self.publisher.close()
         self.subscriber.close()
         self.context.term()
         sys.exit(0)
 
 def unity_test():
+    #get additional arguments from the console
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", dest="back_plane_ip_address", default="None",
                          help="None or IP address used by Back Plane")

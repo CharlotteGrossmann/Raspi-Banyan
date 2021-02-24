@@ -11,30 +11,24 @@ from python_banyan.banyan_base import BanyanBase
 import RPi.GPIO as GPIO
 
 
-BANYAN_IP="192.168.2.166"
+BANYAN_IP="192.168.2.103" #change this to your backplane IP or type " -b >>your backplane IP<<" when you run the script
+
+#this script is based on the "test_unity_sender_cube.py" that is available here: https://github.com/NoahMoscovici/banyanunity
 
 class test(BanyanBase):
-    """
-    This class subscribes to all messages on the back plane and prints out both topic and payload.
-    """
-
+    
+    #connect to backplane
     def __init__(self, back_plane_ip_address=BANYAN_IP,
                  process_name=None, com_port="None", baud_rate=115200, log=False, quiet=False, loop_time="0.1"):
-        """
-        This is constructor for the Monitor class
-        :param back_plane_ip_address: IP address of the currently running backplane
-        :param subscriber_port: subscriber port number - matches that of backplane
-        :param publisher_port: publisher port number - matches that of backplane
-        """
+        
         lastNote = -1
         note = -1
         # initialize the base class
         super().__init__(back_plane_ip_address,  process_name=process_name, numpy=True)
 
-        """"""
-
-        # Loop sending messages to unitygateway to request a cube color change
+        # Loop sending messages to unitygateway
         while True:
+            #define the button pins
             C1 = 12
             B = 16
             A = 18
@@ -43,6 +37,8 @@ class test(BanyanBase):
             E = 36
             D = 38
             C = 40
+
+            #setup raspberry to handle the buttons
             GPIO.setmode(GPIO.BOARD)
             
             GPIO.setup(C1,GPIO.IN,pull_up_down=GPIO.PUD_UP)
@@ -56,9 +52,9 @@ class test(BanyanBase):
             
            
             try:
+                #connect one button to one note
                 if (GPIO.input(C1)==0):
                     note=54
-                  
                 elif (GPIO.input(B)==0):
                     note=53
                 elif (GPIO.input(A)==0):
@@ -76,26 +72,22 @@ class test(BanyanBase):
                 else:
                     note=-1
                     
+                #send a message when the pressed button changes
                 if(note!= lastNote):
+                    #define the message
                     unity_message = {"action":"StringMelody", "info":"blue", "value": note, "target":"Cube"}    
+
+                    #send message
                     self.send_unity_message(unity_message)
-                    print(unity_message)
                     lastNote=note
-
-                
-
 
             except KeyboardInterrupt:
                 self.clean_up()
 
-        """"""
+        
 
     def send_unity_message(self, unity_message):
-        """
-        Logs the game activity. self.room_name must be set before calling this function
 
-        :return:
-        """
         # Set the topic so the unitygateway picks up the message.
         topic = "send_to_unity"
 
@@ -103,17 +95,16 @@ class test(BanyanBase):
         self.publish_payload(unity_message, topic)
 
     def clean_up(self):
-        """
-        Clean up before exiting - override if additional cleanup is necessary
-
-        :return:
-        """
+        
+        #Clean up before exiting 
         self.publisher.close()
         self.subscriber.close()
         self.context.term()
         sys.exit(0)
 
 def unity_test():
+
+    #get additional arguments from the console
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", dest="back_plane_ip_address", default="None",
                          help="None or IP address used by Back Plane")
