@@ -20,7 +20,7 @@ sudo pip3 install adafruit-circuitpython-mcp3xxx <br><br><br>
 1. Start the backplane on the receiving computer and copy the IP adress.<br>
     backplane<br>
 2. Start the the unitylistener.py and unitygateway.py on the the receiving computer.<br>
-    python unitylistener.py .b [your backplane IP adress]<br>
+    python unitylistener.py -b [your backplane IP adress]<br>
     python unitylisteren.py -b [your backplane IP adress]<br>
 3. Start the script on the Raspberry Pi<br>
     python3 [/path/to/script/scriptname.py] -b [your backplane IP adress]<br>
@@ -29,4 +29,4 @@ sudo pip3 install adafruit-circuitpython-mcp3xxx <br><br><br>
 
 
 Trouble shooting<br>
-if the backplane doesn't receive any messages, make sure your firewall is down, or the necessary ports are open.
+If the backplane doesn't receive any messages make sure your firewall is down or the necessary ports are open.
