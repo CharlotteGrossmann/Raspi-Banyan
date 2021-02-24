@@ -57,7 +57,7 @@ class test(BanyanBase):
                     self.send_unity_message(unity_message)
                     noteOn=1
 
-                elif(noteOn == 1):                                                                  # maybe change this
+                elif(noteOn == 1):   #only send this once                                                              
                     # Define the Unity message to be sent
                     unity_message = {"action":"StringPitch", "info": 500, "value": 500, "target":"Cube"}
 
