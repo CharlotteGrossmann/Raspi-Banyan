@@ -43,10 +43,10 @@ class test(BanyanBase):
             # create an analog input channel on pin 0
             chan = AnalogIn(mcp, MCP.P7)
             
-            force=chan.value/72 #scale down the sensor value to force (0-127)
+            force=chan.value/40 #scale down the sensor value to force (0-127)
             try:
                 
-                if(force>5 and noteOn==0): #force >5 because the sensor value isn't stable
+                if(force>8 and noteOn==0): #force >8 because the sensor value isn't stable
                     # Define the Unity message to be sent
                     unity_message = {"action":"KeyboardRhythm", "info":"red", "value": force, "target":"Cube"}
 
@@ -55,7 +55,7 @@ class test(BanyanBase):
                     
                     noteOn=1
                     
-                elif(force<5 and noteOn==1):
+                elif(force<8 and noteOn==1):
                     # Define the Unity message to be sent
                     unity_message = {"action":"KeyboardRhythm", "info":"red", "value": 0, "target":"Cube"}
 
@@ -86,6 +86,7 @@ class test(BanyanBase):
         sys.exit(0)
 
 def unity_test():
+    
     #get additional arguments from console
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", dest="back_plane_ip_address", default="None",
